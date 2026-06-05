@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diario delle Parole di Lina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-screen">
+      <main class="view-stack">
+        <section id="homeView" class="view active">
+          <section class="hero-panel">
+            <div class="hero-head">
+              <div class="brand-block">
+                <h1>DIARIO<br>DELLE PAROLE</h1>
+                <p class="hero-sub">di Lina</p>
+              </div>
+              <div class="hero-side">
+                <div class="search-pill">⌕ <span>Parole di Lina</span></div>
+                <div class="hash-tag">#vocabolario</div>
+              </div>
+            </div>
+
+            <section class="stats-panel">
+              <div>
+                <span id="totalWords">0</span>
+                <p>Totale</p>
+              </div>
+              <div>
+                <span id="todayWords">0</span>
+                <p>Oggi</p>
+              </div>
+              <div>
+                <span id="wrongWords">0</span>
+                <p>Errori</p>
+              </div>
+            </section>
+          </section>
+
+          <section class="card search-card">
+            <div class="card-title-row">
+              <div>
+                <p class="section-kicker">Cerca parole</p>
+                <h2>Ricerca</h2>
+              </div>
+            </div>
+            <div class="search-box">
+              <input id="searchInput" type="search" placeholder="输入中文或意大利语查找单词" autocomplete="off" />
+              <button id="clearSearchBtn" class="text-btn" type="button">Cancella</button>
+            </div>
+            <div id="searchResults" class="word-list search-results"></div>
+          </section>
+
+          <section class="content-grid home-grid">
+            <section class="card card-add">
+              <div class="card-title-row">
+                <div>
+                  <p class="section-kicker">Aggiungi parola</p>
+                  <h2>Nuova parola</h2>
+                </div>
+              </div>
+              <form id="wordForm" class="form-grid">
+                <label>
+                  <span>Italiano</span>
+                  <input id="italianInput" type="text" placeholder="es. litigare" required />
+                </label>
+                <label>
+                  <span>Cinese</span>
+                  <input id="chineseInput" type="text" placeholder="例如：吵架" required />
+                </label>
+                <label>
+                  <span>Nota / Esempio</span>
+                  <textarea id="noteInput" placeholder="es. Non voglio litigare con te."></textarea>
+                </label>
+                <button type="submit" class="primary-btn">Salva</button>
+              </form>
+            </section>
+
+            <section class="card card-quiz">
+              <div class="card-title-row with-badge">
+                <div>
+                  <p class="section-kicker">Esercizio</p>
+                  <h2>Test</h2>
+                </div>
+                <span id="quizCounter" class="counter">0/0</span>
+              </div>
+
+              <div class="switch-row">
+                <button class="mode-btn active" data-mode="zhToIt">中文 → Italiano</button>
+                <button class="mode-btn" data-mode="itToZh">Italiano → 中文</button>
+              </div>
+
+              <div class="switch-row compact-row">
+                <button class="scope-btn active" data-scope="all">Tutte</button>
+                <button class="scope-btn" data-scope="wrong">Solo errori</button>
+              </div>
+
+              <div id="quizBox" class="quiz-box empty">
+                <p>至少添加 4 个生词后，就可以开始选择题测试。</p>
+              </div>
+
+              <button id="nextQuestionBtn" class="secondary-btn">Prossima domanda</button>
+            </section>
+
+            <section class="card card-wrong">
+              <div class="card-title-row with-action">
+                <div>
+                  <p class="section-kicker">Ripasso</p>
+                  <h2>Errori</h2>
+                </div>
+                <button id="clearWrongBtn" class="text-btn">Azzera</button>
+              </div>
+              <div id="wrongList" class="word-list compact"></div>
+            </section>
+          </section>
+        </section>
+
+        <section id="libraryView" class="view">
+          <section class="hero-panel small-hero">
+            <div class="hero-head single-col">
+              <div class="brand-block">
+                <h1>BIBLIOTECA</h1>
+                <p class="hero-sub">tutte le tue parole</p>
+              </div>
+              <div class="hash-tag">#backup</div>
+            </div>
+          </section>
+
+          <section class="content-grid">
+            <section class="card">
+              <div class="card-title-row">
+                <div>
+                  <p class="section-kicker">Salvataggio</p>
+                  <h2>Archivio dati</h2>
+                </div>
+              </div>
+              <p id="backupStatus" class="backup-status">还没有导出过备份</p>
+              <div class="backup-actions">
+                <button id="exportBackupBtn" class="primary-btn" type="button">Esporta salvataggio</button>
+                <button id="importBackupBtn" class="secondary-btn" type="button">Importa salvataggio</button>
+                <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="card-title-row with-action">
+                <div>
+                  <p class="section-kicker">Lista parole</p>
+                  <h2>Archivio</h2>
+                </div>
+                <button id="clearAllBtn" class="text-btn danger">Svuota</button>
+              </div>
+              <div id="wordList" class="word-list"></div>
+            </section>
+          </section>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-btn active" data-target="homeView"><span>⌂</span><em>Inizio</em></button>
+        <button class="nav-btn" data-target="libraryView"><span>☷</span><em>Biblioteca</em></button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
