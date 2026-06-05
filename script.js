@@ -25,6 +25,7 @@ const wordForm = document.getElementById("wordForm");
 const italianInput = document.getElementById("italianInput");
 const chineseInput = document.getElementById("chineseInput");
 const noteInput = document.getElementById("noteInput");
+const duplicateMessage = document.getElementById("duplicateMessage");
 const quizBox = document.getElementById("quizBox");
 const nextQuestionBtn = document.getElementById("nextQuestionBtn");
 const wordList = document.getElementById("wordList");
@@ -295,6 +296,32 @@ function importBackupFile(file) {
   reader.readAsText(file);
 }
 
+
+function normalizeWordText(text) {
+  return String(text || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFC");
+}
+
+function findDuplicateWord(italianText) {
+  const normalized = normalizeWordText(italianText);
+  if (!normalized) return null;
+  return words.find((word) => normalizeWordText(word.italian) === normalized) || null;
+}
+
+function showDuplicateMessage(word) {
+  if (!duplicateMessage) return;
+  if (word) {
+    duplicateMessage.textContent = `这个单词已添加：${word.italian} = ${word.chinese}`;
+    italianInput.classList.add("duplicate-input");
+  } else {
+    duplicateMessage.textContent = "";
+    italianInput.classList.remove("duplicate-input");
+  }
+}
+
+
 wordForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const newWord = {
@@ -310,6 +337,11 @@ wordForm.addEventListener("submit", (event) => {
   wordForm.reset();
   render();
   createQuestion();
+});
+
+italianInput.addEventListener("input", () => {
+  const duplicate = findDuplicateWord(italianInput.value);
+  showDuplicateMessage(duplicate);
 });
 
 document.querySelectorAll(".mode-btn").forEach((button) => {

@@ -491,3 +491,17 @@ textarea { resize: vertical; min-height: 94px; }
   border-radius: 18px;
   padding: 16px;
 }
+
+
+.duplicate-message {
+  min-height: 20px;
+  color: #b34a58;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+input.duplicate-input {
+  border-color: rgba(179, 74, 88, 0.45);
+  box-shadow: 0 0 0 4px rgba(179, 74, 88, 0.08);
+}
