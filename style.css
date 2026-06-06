@@ -505,3 +505,51 @@ input.duplicate-input {
   border-color: rgba(179, 74, 88, 0.45);
   box-shadow: 0 0 0 4px rgba(179, 74, 88, 0.08);
 }
+
+
+.word-actions {
+  display: grid;
+  gap: 8px;
+  align-self: start;
+}
+
+.edit-btn {
+  min-height: 38px;
+  padding: 0 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(28, 34, 52, 0.36);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.edit-modal {
+  width: min(100%, 420px);
+  max-height: calc(100% - 40px);
+  overflow: auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(22, 28, 46, 0.24);
+  padding: 18px;
+}
+
+#editItalianInput {
+  background: #f3f5fa;
+  color: var(--muted);
+}
+
+#generateExampleBtn {
+  width: 100%;
+}

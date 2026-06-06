@@ -37,6 +37,15 @@ const exportBackupBtn = document.getElementById("exportBackupBtn");
 const importBackupBtn = document.getElementById("importBackupBtn");
 const backupFileInput = document.getElementById("backupFileInput");
 const backupStatus = document.getElementById("backupStatus");
+const editModal = document.getElementById("editModal");
+const editWordForm = document.getElementById("editWordForm");
+const editItalianInput = document.getElementById("editItalianInput");
+const editChineseInput = document.getElementById("editChineseInput");
+const editNoteInput = document.getElementById("editNoteInput");
+const closeEditBtn = document.getElementById("closeEditBtn");
+const generateExampleBtn = document.getElementById("generateExampleBtn");
+
+let editingIndex = null;
 const searchInput = document.getElementById("searchInput");
 const clearSearchBtn = document.getElementById("clearSearchBtn");
 const searchResults = document.getElementById("searchResults");
@@ -120,7 +129,12 @@ function renderList(container, list, emptyText, allowDelete) {
           ${word.note ? `<p class="word-note">${escapeHtml(word.note)}</p>` : ""}
           <p class="word-meta">错题次数：${word.wrongCount || 0}</p>
         </div>
-        ${allowDelete ? `<button class="delete-btn" onclick="deleteWord(${originalIndex})">删除</button>` : ""}
+        ${allowDelete ? `
+          <div class="word-actions">
+            <button class="edit-btn" onclick="openEditWord(${originalIndex})">编辑</button>
+            <button class="delete-btn" onclick="deleteWord(${originalIndex})">删除</button>
+          </div>
+        ` : ""}
       </article>
     `;
   }).join("");
@@ -233,7 +247,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 6,
+    version: 9,
     exportedAt: now,
     words
   };
@@ -294,6 +308,58 @@ function importBackupFile(file) {
     }
   };
   reader.readAsText(file);
+}
+
+
+
+function openEditWord(index) {
+  const word = words[index];
+  if (!word) return;
+
+  editingIndex = index;
+  editItalianInput.value = word.italian || "";
+  editChineseInput.value = word.chinese || "";
+  editNoteInput.value = word.note || "";
+  editModal.hidden = false;
+  editChineseInput.focus();
+}
+
+function closeEditModal() {
+  editModal.hidden = true;
+  editingIndex = null;
+  editWordForm.reset();
+}
+
+function generateLocalExample(italianText, chineseText) {
+  const word = String(italianText || "").trim();
+  const meaning = String(chineseText || "").trim();
+
+  const specialExamples = {
+    "fuggire": "Non puoi fuggire dai tuoi problemi.",
+    "a beneficio di": "Questa iniziativa è a beneficio degli studenti.",
+    "litigare": "Non voglio litigare con te.",
+    "trasloco": "Il trasloco è stato faticoso.",
+    "nostalgia": "Ho nostalgia di casa.",
+    "colloquio": "Domani ho un colloquio.",
+    "presenza": "La tua presenza è importante."
+  };
+
+  const key = word.toLowerCase();
+  if (specialExamples[key]) return specialExamples[key];
+
+  if (key.endsWith("are") || key.endsWith("ere") || key.endsWith("ire")) {
+    return `Devo imparare a usare il verbo “${word}” in una frase.`;
+  }
+
+  if (word.includes(" ")) {
+    return `Questa espressione, “${word}”, è utile nella vita quotidiana.`;
+  }
+
+  if (meaning) {
+    return `La parola “${word}” significa “${meaning}”.`;
+  }
+
+  return `La parola “${word}” è importante per me.`;
 }
 
 
@@ -370,6 +436,40 @@ backupFileInput.addEventListener("change", (event) => {
   if (!file) return;
   importBackupFile(file);
 });
+
+
+closeEditBtn.addEventListener("click", closeEditModal);
+
+editModal.addEventListener("click", (event) => {
+  if (event.target === editModal) closeEditModal();
+});
+
+generateExampleBtn.addEventListener("click", () => {
+  editNoteInput.value = generateLocalExample(editItalianInput.value, editChineseInput.value);
+  editNoteInput.focus();
+});
+
+editWordForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (editingIndex === null || !words[editingIndex]) return;
+
+  const chinese = editChineseInput.value.trim();
+  const note = editNoteInput.value.trim();
+
+  if (!chinese) return;
+
+  words[editingIndex] = {
+    ...words[editingIndex],
+    chinese,
+    note
+  };
+
+  saveWords();
+  closeEditModal();
+  render();
+  createQuestion();
+});
+
 
 searchInput.addEventListener("input", renderSearchResults);
 

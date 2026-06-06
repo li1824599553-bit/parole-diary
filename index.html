@@ -167,6 +167,36 @@
         <button class="nav-btn" data-target="libraryView"><span>☷</span><em>Biblioteca</em></button>
       </nav>
     </div>
+
+      <div id="editModal" class="modal-backdrop" hidden>
+        <section class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+          <div class="card-title-row with-action">
+            <div>
+              <p class="section-kicker">Modifica parola</p>
+              <h2 id="editModalTitle">编辑词汇</h2>
+            </div>
+            <button id="closeEditBtn" class="text-btn" type="button">Chiudi</button>
+          </div>
+
+          <form id="editWordForm" class="form-grid">
+            <label>
+              <span>Italiano</span>
+              <input id="editItalianInput" type="text" readonly />
+            </label>
+            <label>
+              <span>Cinese</span>
+              <input id="editChineseInput" type="text" placeholder="修改中文翻译" required />
+            </label>
+            <label>
+              <span>Nota / Esempio</span>
+              <textarea id="editNoteInput" placeholder="修改例句 / 备注"></textarea>
+            </label>
+            <button id="generateExampleBtn" class="secondary-btn" type="button">Genera esempio</button>
+            <button class="primary-btn" type="submit">Salva modifica</button>
+          </form>
+        </section>
+      </div>
+
   </div>
 
   <script src="script.js"></script>
