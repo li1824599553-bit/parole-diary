@@ -2232,6 +2232,18 @@ const searchInput = document.getElementById("searchInput");
 const clearSearchBtn = document.getElementById("clearSearchBtn");
 const searchResults = document.getElementById("searchResults");
 
+const batchWordForm = document.getElementById("batchWordForm");
+const batchInput = document.getElementById("batchInput");
+const batchMessage = document.getElementById("batchMessage");
+const backupReminder = document.getElementById("backupReminder");
+const wordDetailModal = document.getElementById("wordDetailModal");
+const wordDetailContent = document.getElementById("wordDetailContent");
+const closeDetailBtn = document.getElementById("closeDetailBtn");
+const dateFilterButtons = document.querySelectorAll(".date-filter-btn");
+let currentDateFilter = "all";
+let currentDetailIndex = null;
+
+
 const editModal = document.getElementById("editModal");
 const editWordForm = document.getElementById("editWordForm");
 const editItalianInput = document.getElementById("editItalianInput");
@@ -2328,6 +2340,10 @@ function updateAuthUI() {
 
   if (authButtonText) {
     authButtonText.textContent = online ? "Cloud" : "Accesso";
+  }
+
+  if (openAuthBtn) {
+    openAuthBtn.title = currentUser ? `已登录：${currentUser.email}` : "登录 / 注册";
   }
 
   if (authLoggedOut) authLoggedOut.hidden = online;
@@ -2621,8 +2637,192 @@ function renderSearchResults() {
   renderList(searchResults, results, "没有找到这个单词。", "readonly");
 }
 
+
+function parseDateOnly(value) {
+  if (!value) return "";
+  return String(value).slice(0, 10);
+}
+
+function startOfWeek(date) {
+  const copy = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const day = copy.getDay() || 7;
+  copy.setDate(copy.getDate() - day + 1);
+  return copy;
+}
+
+function matchesDateFilter(word) {
+  if (currentDateFilter === "all") return true;
+
+  const dateText = parseDateOnly(word.createdAt);
+  if (!dateText) return false;
+
+  const wordDate = new Date(dateText + "T00:00:00");
+  const now = new Date();
+  const todayText = today();
+
+  if (currentDateFilter === "today") {
+    return dateText === todayText;
+  }
+
+  if (currentDateFilter === "week") {
+    const start = startOfWeek(now);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    return wordDate >= start && wordDate < end;
+  }
+
+  if (currentDateFilter === "month") {
+    return wordDate.getFullYear() === now.getFullYear() && wordDate.getMonth() === now.getMonth();
+  }
+
+  return true;
+}
+
+function weightedQuestionPool() {
+  const pool = questionPool();
+
+  if (quizScope === "wrong") {
+    const weighted = [];
+    pool.forEach((word) => {
+      const weight = Math.max(1, Math.min(8, word.wrongCount || 1));
+      for (let i = 0; i < weight; i += 1) weighted.push(word);
+    });
+    return weighted.length ? weighted : pool;
+  }
+
+  return pool;
+}
+
+function updateBackupReminder() {
+  if (!backupReminder) return;
+
+  const lastBackup = localStorage.getItem(BACKUP_TIME_KEY);
+  const total = words.length;
+  const shouldRemindByCount = total > 0 && total % 200 === 0;
+  let shouldRemindByTime = false;
+
+  if (lastBackup) {
+    const last = new Date(lastBackup);
+    const diffDays = (Date.now() - last.getTime()) / (1000 * 60 * 60 * 24);
+    shouldRemindByTime = diffDays >= 7;
+  } else {
+    shouldRemindByTime = total >= 50;
+  }
+
+  if (shouldRemindByCount) {
+    backupReminder.hidden = false;
+    backupReminder.textContent = `你已经累计 ${total} 个单词，建议现在导出一次备份。`;
+    return;
+  }
+
+  if (shouldRemindByTime) {
+    backupReminder.hidden = false;
+    backupReminder.textContent = "距离上次备份已经比较久，建议导出一次备份。";
+    return;
+  }
+
+  backupReminder.hidden = true;
+  backupReminder.textContent = "";
+}
+
+function parseBatchLines(text) {
+  return String(text || "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      let parts = line.split(/\s*=\s*|\s*-\s*|\s*：\s*|\s*:\s*/);
+      if (parts.length < 2) {
+        parts = line.split(/\s{2,}/);
+      }
+
+      const italian = (parts[0] || "").trim();
+      const chinese = parts.slice(1).join(" / ").trim();
+
+      if (!italian || !chinese) return null;
+
+      const dictEntry = lookupBuiltInDictionary(italian);
+      return {
+        italian,
+        chinese,
+        note: dictEntry && dictEntry.note ? dictEntry.note : "",
+        wrongCount: 0,
+        createdAt: today()
+      };
+    })
+    .filter(Boolean);
+}
+
+async function saveWordsToCloudAndLocal(newWords) {
+  const saved = [];
+  for (const word of newWords) {
+    const duplicate = findDuplicateWord(word.italian);
+    if (duplicate) continue;
+    const savedWord = await insertCloudWord(word);
+    words.unshift(savedWord);
+    saved.push(savedWord);
+  }
+  saveWords();
+  render();
+  createQuestion();
+  return saved.length;
+}
+
+function openWordDetail(index) {
+  if (index < 0 || !words[index] || !wordDetailModal || !wordDetailContent) return;
+  currentDetailIndex = index;
+  const word = words[index];
+
+  wordDetailContent.innerHTML = `
+    <div class="detail-line">
+      <span class="detail-label">Italiano</span>
+      <p class="detail-value detail-word">${escapeHtml(word.italian)}</p>
+    </div>
+    <div class="detail-line">
+      <span class="detail-label">Cinese</span>
+      <p class="detail-value">${escapeHtml(word.chinese)}</p>
+    </div>
+    <div class="detail-line">
+      <span class="detail-label">Nota / Esempio</span>
+      <p class="detail-value">${escapeHtml(word.note || "还没有例句 / 备注。")}</p>
+    </div>
+    <div class="detail-line">
+      <span class="detail-label">Statistiche</span>
+      <p class="detail-value">错题次数：${word.wrongCount || 0}<br>添加时间：${escapeHtml(parseDateOnly(word.createdAt) || "未知")}</p>
+    </div>
+    <div class="detail-actions">
+      <button class="secondary-btn" type="button" onclick="editFromDetail()">编辑</button>
+      <button class="text-btn danger" type="button" onclick="deleteFromDetail()">删除</button>
+    </div>
+  `;
+
+  wordDetailModal.hidden = false;
+}
+
+function closeWordDetail() {
+  if (!wordDetailModal) return;
+  wordDetailModal.hidden = true;
+  currentDetailIndex = null;
+}
+
+function editFromDetail() {
+  if (currentDetailIndex === null) return;
+  const index = currentDetailIndex;
+  closeWordDetail();
+  openEditWord(index);
+}
+
+async function deleteFromDetail() {
+  if (currentDetailIndex === null) return;
+  const index = currentDetailIndex;
+  closeWordDetail();
+  await deleteWord(index);
+}
+
+
 function renderWordList() {
-  renderList(wordList, words, "现在还没有生词。先添加一个吧。", "library");
+  const filteredWords = words.filter(matchesDateFilter);
+  renderList(wordList, filteredWords, "这个时间范围里还没有生词。", "library");
 
   const wrongWords = words
     .filter((word) => (word.wrongCount || 0) > 0)
@@ -2645,14 +2845,14 @@ function renderList(container, list, emptyText, mode) {
       const actions = mode === "library"
         ? `
           <div class="word-actions">
-            <button class="edit-btn" type="button" onclick="openEditWord(${originalIndex})">编辑</button>
-            <button class="delete-btn" type="button" onclick="deleteWord(${originalIndex})">删除</button>
+            <button class="edit-btn" type="button" onclick="event.stopPropagation(); openEditWord(${originalIndex})">编辑</button>
+            <button class="delete-btn" type="button" onclick="event.stopPropagation(); deleteWord(${originalIndex})">删除</button>
           </div>
         `
         : "";
 
       return `
-        <article class="word-card">
+        <article class="word-card" onclick="openWordDetail(${originalIndex})">
           <div>
             <h3>${escapeHtml(word.italian)} <span>— ${escapeHtml(word.chinese)}</span></h3>
             ${word.note ? `<p class="word-note">${escapeHtml(word.note)}</p>` : ""}
@@ -2819,7 +3019,8 @@ function createQuestion() {
     return;
   }
 
-  const answer = pool[Math.floor(Math.random() * pool.length)];
+  const weightedPool = weightedQuestionPool();
+  const answer = weightedPool[Math.floor(Math.random() * weightedPool.length)];
   const wrongSource = words.filter((word) => word !== answer);
   const wrongOptions = shuffle(wrongSource).slice(0, 3);
   const options = shuffle([answer, ...wrongOptions]);
@@ -2897,7 +3098,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 20,
+    version: 21,
     exportedAt: now,
     words
   };
@@ -3171,6 +3372,44 @@ if (signUpBtn) signUpBtn.addEventListener("click", signUp);
 if (signOutBtn) signOutBtn.addEventListener("click", signOut);
 if (syncLocalBtn) syncLocalBtn.addEventListener("click", uploadLocalWordsToCloud);
 
+
+if (batchWordForm) {
+  batchWordForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const parsedWords = parseBatchLines(batchInput.value);
+
+    if (parsedWords.length === 0) {
+      setMessage(batchMessage, "没有识别到可添加的单词。请使用：italiano = 中文", "error");
+      return;
+    }
+
+    setMessage(batchMessage, `正在添加 ${parsedWords.length} 个单词……`);
+    const addedCount = await saveWordsToCloudAndLocal(parsedWords);
+    batchInput.value = "";
+    setMessage(batchMessage, `已添加 ${addedCount} 个单词，跳过 ${parsedWords.length - addedCount} 个重复词。`, "success");
+  });
+}
+
+dateFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    dateFilterButtons.forEach((btn) => btn.classList.remove("active"));
+    button.classList.add("active");
+    currentDateFilter = button.dataset.filter;
+    renderWordList();
+  });
+});
+
+if (closeDetailBtn) {
+  closeDetailBtn.addEventListener("click", closeWordDetail);
+}
+
+if (wordDetailModal) {
+  wordDetailModal.addEventListener("click", (event) => {
+    if (event.target === wordDetailModal) closeWordDetail();
+  });
+}
+
+
 nextQuestionBtn.addEventListener("click", createQuestion);
 exportBackupBtn.addEventListener("click", exportBackup);
 
@@ -3209,6 +3448,7 @@ function render() {
   renderWordList();
   renderSearchResults();
   updateBackupStatus();
+  updateBackupReminder();
   quizCounter.textContent = `${answeredCount}/${Math.max(questionPool().length, 0)}`;
 }
 

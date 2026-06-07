@@ -86,6 +86,24 @@
               </form>
             </section>
 
+
+            <section class="card card-batch">
+              <div class="card-title-row">
+                <div>
+                  <p class="section-kicker">Aggiunta multipla</p>
+                  <h2>Batch parole</h2>
+                </div>
+              </div>
+              <form id="batchWordForm" class="form-grid">
+                <label>
+                  <span>Formato</span>
+                  <textarea id="batchInput" placeholder="每行一个：&#10;fuggire = 逃跑 / 逃走&#10;litigare = 吵架&#10;nostalgia = 怀念 / 乡愁"></textarea>
+                </label>
+                <button type="submit" class="secondary-btn">Salva parole</button>
+                <p id="batchMessage" class="cloud-message"></p>
+              </form>
+            </section>
+
             <section class="card card-quiz">
               <div class="card-title-row with-badge">
                 <div>
@@ -145,6 +163,7 @@
                 </div>
               </div>
               <p id="libraryCloudStatus" class="library-cloud-status">未登录 Cloud，当前使用本地词库。</p>
+              <p id="backupReminder" class="backup-reminder" hidden></p>
               <p id="backupStatus" class="backup-status">还没有导出过备份</p>
               <div class="backup-actions">
                 <button id="exportBackupBtn" class="primary-btn" type="button">Esporta salvataggio</button>
@@ -161,6 +180,13 @@
                 </div>
                 <button id="clearAllBtn" class="text-btn danger">Svuota</button>
               </div>
+
+              <div class="library-filters">
+                <button class="date-filter-btn active" data-filter="all" type="button">Tutte</button>
+                <button class="date-filter-btn" data-filter="today" type="button">Oggi</button>
+                <button class="date-filter-btn" data-filter="week" type="button">Settimana</button>
+                <button class="date-filter-btn" data-filter="month" type="button">Mese</button>
+              </div>
               <div id="wordList" class="word-list"></div>
             </section>
           </section>
@@ -173,6 +199,20 @@
       </nav>
     </div>
 
+
+
+      <div id="wordDetailModal" class="modal-backdrop" hidden>
+        <section class="edit-modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="wordDetailTitle">
+          <div class="card-title-row with-action">
+            <div>
+              <p class="section-kicker">Dettaglio parola</p>
+              <h2 id="wordDetailTitle">单词详情</h2>
+            </div>
+            <button id="closeDetailBtn" class="text-btn" type="button">Chiudi</button>
+          </div>
+          <div id="wordDetailContent" class="word-detail-content"></div>
+        </section>
+      </div>
 
       <div id="authModal" class="modal-backdrop" hidden>
         <section class="edit-modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
