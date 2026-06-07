@@ -651,3 +651,59 @@ input.duplicate-input {
     right: 16px;
   }
 }
+
+
+.auto-translate-message {
+  min-height: 20px;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+
+/* v17 Supabase cloud sync */
+.auth-card {
+  margin-top: 22px;
+  margin-bottom: 18px;
+}
+
+.auth-box {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cloud-help,
+.cloud-message {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.cloud-message {
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cloud-message.success {
+  color: var(--blue);
+}
+
+.cloud-message.error {
+  color: var(--danger);
+}
+
+#cloudStatus.online {
+  background: #1f7a4d;
+}
+
+#cloudStatus.offline {
+  background: var(--blue);
+}

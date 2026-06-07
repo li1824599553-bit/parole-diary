@@ -42,6 +42,42 @@
             </section>
           </section>
 
+          <section class="card auth-card">
+            <div class="card-title-row with-action">
+              <div>
+                <p class="section-kicker">Cloud sync</p>
+                <h2>Accesso</h2>
+              </div>
+              <span id="cloudStatus" class="counter">Locale</span>
+            </div>
+
+            <div id="authLoggedOut" class="auth-box">
+              <p class="cloud-help">登录后，单词会保存到云端。换 iPad / 手机 / 电脑登录同一个账号，就能看到同一份词库。</p>
+              <label>
+                <span>Email</span>
+                <input id="authEmailInput" type="email" placeholder="邮箱" autocomplete="email" />
+              </label>
+              <label>
+                <span>Password</span>
+                <input id="authPasswordInput" type="password" placeholder="密码，至少 6 位" autocomplete="current-password" />
+              </label>
+              <div class="auth-actions">
+                <button id="signInBtn" class="primary-btn" type="button">Accedi</button>
+                <button id="signUpBtn" class="secondary-btn" type="button">Registrati</button>
+              </div>
+              <p id="authMessage" class="cloud-message"></p>
+            </div>
+
+            <div id="authLoggedIn" class="auth-box" hidden>
+              <p class="cloud-help">已登录：<strong id="userEmailText"></strong></p>
+              <div class="auth-actions">
+                <button id="syncLocalBtn" class="secondary-btn" type="button">Carica dati locali</button>
+                <button id="signOutBtn" class="text-btn danger" type="button">Esci</button>
+              </div>
+              <p id="syncMessage" class="cloud-message"></p>
+            </div>
+          </section>
+
           <section class="card search-card">
             <div class="card-title-row">
               <div>
@@ -73,6 +109,7 @@
                 <label>
                   <span>Cinese</span>
                   <input id="chineseInput" type="text" placeholder="例如：吵架" required />
+                  <small id="autoTranslateMessage" class="auto-translate-message" aria-live="polite"></small>
                 </label>
                 <label>
                   <span>Nota / Esempio</span>
@@ -199,6 +236,7 @@
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
