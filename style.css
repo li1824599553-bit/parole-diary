@@ -748,3 +748,23 @@ input.duplicate-input {
 .auth-card {
   display: none !important;
 }
+
+
+.library-cloud-status {
+  margin: 0 0 10px;
+  color: var(--blue);
+  font-weight: 900;
+  line-height: 1.7;
+}
+
+.library-cloud-status.success {
+  color: var(--blue);
+}
+
+.library-cloud-status.error {
+  color: var(--danger);
+}
+
+.library-cloud-status.local {
+  color: var(--muted);
+}

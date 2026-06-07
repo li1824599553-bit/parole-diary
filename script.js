@@ -2209,6 +2209,7 @@ const exportBackupBtn = document.getElementById("exportBackupBtn");
 const importBackupBtn = document.getElementById("importBackupBtn");
 const backupFileInput = document.getElementById("backupFileInput");
 const backupStatus = document.getElementById("backupStatus");
+const libraryCloudStatus = document.getElementById("libraryCloudStatus");
 
 const openAuthBtn = document.getElementById("openAuthBtn");
 const closeAuthBtn = document.getElementById("closeAuthBtn");
@@ -2297,6 +2298,15 @@ function mapWordToCloud(word) {
   };
 }
 
+
+function updateLibraryCloudStatus(text, type = "") {
+  if (!libraryCloudStatus) return;
+  libraryCloudStatus.textContent = text;
+  libraryCloudStatus.classList.remove("success", "error", "local");
+  if (type) libraryCloudStatus.classList.add(type);
+}
+
+
 function setMessage(element, text, type = "") {
   if (!element) return;
   element.textContent = text || "";
@@ -2323,6 +2333,10 @@ function updateAuthUI() {
   if (authLoggedOut) authLoggedOut.hidden = online;
   if (authLoggedIn) authLoggedIn.hidden = !online;
   if (userEmailText) userEmailText.textContent = currentUser ? currentUser.email : "";
+
+  if (!online) {
+    updateLibraryCloudStatus("未登录 Cloud，当前使用本地词库。", "local");
+  }
 }
 
 
@@ -2457,6 +2471,7 @@ async function loadCloudWords() {
 
   isCloudLoading = true;
   setMessage(syncMessage, "正在读取云端词库……");
+  updateLibraryCloudStatus("正在读取云端词库……");
 
   const { data, error } = await supabaseClient
     .from("words")
@@ -2468,12 +2483,14 @@ async function loadCloudWords() {
 
   if (error) {
     setMessage(syncMessage, "读取云端失败：" + error.message, "error");
+    updateLibraryCloudStatus("读取云端失败：" + error.message, "error");
     return;
   }
 
   words = (data || []).map(mapCloudWord);
   saveWords();
   setMessage(syncMessage, `已同步云端词库：${words.length} 个单词。`, "success");
+  updateLibraryCloudStatus(`已同步云端词库：${words.length} 个单词。`, "success");
   render();
   createQuestion();
 }
@@ -2580,6 +2597,7 @@ async function uploadLocalWordsToCloud() {
 
   await loadCloudWords();
   setMessage(syncMessage, `已上传 ${toUpload.length} 个本地单词到云端。`, "success");
+  updateLibraryCloudStatus(`已同步云端词库：${words.length} 个单词。`, "success");
 }
 
 
@@ -2879,7 +2897,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 19,
+    version: 20,
     exportedAt: now,
     words
   };
