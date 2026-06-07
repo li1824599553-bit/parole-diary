@@ -17,8 +17,8 @@
           <section class="hero-panel">
             <div class="hero-head">
               <div class="brand-block">
-                <h1>DIARIO<br>DELLE PAROLE</h1>
-                <p class="hero-sub">di Lina</p>
+                <h1>Lina Parole</h1>
+                <p class="hero-sub">Diario delle parole</p>
               </div>
               <div class="hero-side">
                 <button id="openAuthBtn" class="login-pill" type="button">
@@ -29,37 +29,8 @@
                 <div class="hash-tag">#vocabolario</div>
               </div>
             </div>
-
-            <section class="stats-panel">
-              <div>
-                <span id="totalWords">0</span>
-                <p>Totale</p>
-              </div>
-              <div>
-                <span id="todayWords">0</span>
-                <p>Oggi</p>
-              </div>
-              <div>
-                <span id="wrongWords">0</span>
-                <p>Errori</p>
-              </div>
-            </section>
-          </section>
-          <section class="card search-card">
-            <div class="card-title-row">
-              <div>
-                <p class="section-kicker">Cerca parole</p>
-                <h2>Ricerca</h2>
-              </div>
-            </div>
-            <div class="search-box">
-              <input id="searchInput" type="search" placeholder="输入中文或意大利语查找单词" autocomplete="off" />
-              <button id="clearSearchBtn" class="text-btn" type="button">Cancella</button>
-            </div>
-            <div id="searchResults" class="word-list search-results"></div>
-          </section>
-
-          <section class="content-grid home-grid">
+</section>
+<section class="content-grid home-grid">
             <section class="card card-add">
               <div class="card-title-row">
                 <div>
@@ -84,26 +55,19 @@
                 </label>
                 <button type="submit" class="primary-btn">Salva</button>
               </form>
-            </section>
 
-
-            <section class="card card-batch">
-              <div class="card-title-row">
-                <div>
-                  <p class="section-kicker">Aggiunta multipla</p>
-                  <h2>Batch parole</h2>
-                </div>
+              <div class="inline-batch-panel">
+                <button id="toggleBatchBtn" class="batch-title-toggle" type="button">+ Aggiunta multipla</button>
+                <form id="batchWordForm" class="form-grid batch-body" hidden>
+                  <label>
+                    <span>Formato</span>
+                    <textarea id="batchInput" placeholder="每行一个：&#10;fuggire = 逃跑 / 逃走&#10;litigare = 吵架&#10;nostalgia = 怀念 / 乡愁"></textarea>
+                  </label>
+                  <button type="submit" class="secondary-btn">Salva parole</button>
+                  <p id="batchMessage" class="cloud-message"></p>
+                </form>
               </div>
-              <form id="batchWordForm" class="form-grid">
-                <label>
-                  <span>Formato</span>
-                  <textarea id="batchInput" placeholder="每行一个：&#10;fuggire = 逃跑 / 逃走&#10;litigare = 吵架&#10;nostalgia = 怀念 / 乡愁"></textarea>
-                </label>
-                <button type="submit" class="secondary-btn">Salva parole</button>
-                <p id="batchMessage" class="cloud-message"></p>
-              </form>
             </section>
-
             <section class="card card-quiz">
               <div class="card-title-row with-badge">
                 <div>
@@ -130,17 +94,33 @@
               <button id="nextQuestionBtn" class="secondary-btn">Prossima domanda</button>
             </section>
 
-            <section class="card card-wrong">
-              <div class="card-title-row with-action">
+            <section class="card home-stats-card">
+              <div class="card-title-row">
                 <div>
-                  <p class="section-kicker">Ripasso</p>
-                  <h2>Errori</h2>
+                  <p class="section-kicker">Statistiche</p>
+                  <h2>Riepilogo</h2>
                 </div>
-                <button id="clearWrongBtn" class="text-btn">Azzera</button>
               </div>
-              <div id="wrongList" class="word-list compact"></div>
+
+
+            <section class="stats-panel">
+              <div>
+                <span id="totalWords">0</span>
+                <p>Totale</p>
+              </div>
+              <div>
+                <span id="todayWords">0</span>
+                <p>Oggi</p>
+              </div>
+              <div>
+                <span id="wrongWords">0</span>
+                <p>Errori</p>
+              </div>
             </section>
-          </section>
+          
+            </section>
+              <div id="wrongList" class="word-list compact" hidden></div>
+</section>
         </section>
 
         <section id="libraryView" class="view">
@@ -170,6 +150,21 @@
                 <button id="importBackupBtn" class="secondary-btn" type="button">Importa salvataggio</button>
                 <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
               </div>
+            </section>
+
+
+            <section class="card search-card library-search-card">
+              <div class="card-title-row">
+                <div>
+                  <p class="section-kicker">Cerca parole</p>
+                  <h2>Ricerca</h2>
+                </div>
+              </div>
+              <div class="search-box">
+                <input id="searchInput" type="search" placeholder="输入中文或意大利语查找单词" autocomplete="off" />
+                <button id="clearSearchBtn" class="text-btn" type="button">Cancella</button>
+              </div>
+              <div id="searchResults" class="word-list search-results"></div>
             </section>
 
             <section class="card">

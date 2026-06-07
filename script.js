@@ -2232,6 +2232,7 @@ const searchInput = document.getElementById("searchInput");
 const clearSearchBtn = document.getElementById("clearSearchBtn");
 const searchResults = document.getElementById("searchResults");
 
+const toggleBatchBtn = document.getElementById("toggleBatchBtn");
 const batchWordForm = document.getElementById("batchWordForm");
 const batchInput = document.getElementById("batchInput");
 const batchMessage = document.getElementById("batchMessage");
@@ -2623,7 +2624,7 @@ function renderSearchResults() {
   const keyword = searchInput.value.trim().toLowerCase();
 
   if (!keyword) {
-    searchResults.innerHTML = `<p class="empty search-empty">输入中文或意大利语，就可以在词库里查找单词。</p>`;
+    searchResults.innerHTML = "";
     return;
   }
 
@@ -3098,7 +3099,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 21,
+    version: 28,
     exportedAt: now,
     words
   };
@@ -3371,6 +3372,16 @@ if (signInBtn) signInBtn.addEventListener("click", signIn);
 if (signUpBtn) signUpBtn.addEventListener("click", signUp);
 if (signOutBtn) signOutBtn.addEventListener("click", signOut);
 if (syncLocalBtn) syncLocalBtn.addEventListener("click", uploadLocalWordsToCloud);
+
+
+
+if (toggleBatchBtn && batchWordForm) {
+  toggleBatchBtn.addEventListener("click", () => {
+    const isHidden = batchWordForm.hidden;
+    batchWordForm.hidden = !isHidden;
+    toggleBatchBtn.textContent = isHidden ? "− Aggiunta multipla" : "+ Aggiunta multipla";
+  });
+}
 
 
 if (batchWordForm) {

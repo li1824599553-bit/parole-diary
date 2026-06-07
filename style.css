@@ -883,3 +883,526 @@ input.duplicate-input {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v22 clean UI */
+.hero-panel {
+  min-height: auto;
+  padding: 6px 0 18px;
+}
+
+.hero-panel::before {
+  margin-bottom: 18px;
+}
+
+.brand-block h1 {
+  font-size: clamp(34px, 5vw, 56px);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+.hero-sub {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.hero-side {
+  gap: 8px;
+}
+
+.stats-panel {
+  display: flex;
+  gap: 0;
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.stats-panel div {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 14px;
+  border-right: 1px solid var(--line);
+}
+
+.stats-panel span {
+  font-size: 18px;
+}
+
+.stats-panel p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.content-grid.home-grid {
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.card {
+  padding: 18px;
+}
+
+.card-title-row {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+}
+
+.card-title-row h2,
+h2 {
+  font-size: clamp(24px, 3vw, 32px);
+}
+
+.card-wrong {
+  display: none !important;
+}
+
+.card-batch.collapsed {
+  padding-bottom: 14px;
+}
+
+.card-batch .card-title-row {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.card-batch .batch-body {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.quiz-box {
+  min-height: 230px;
+}
+
+.library-search-card {
+  order: 2;
+}
+
+.library-search-card:has(.search-results .empty),
+.library-search-card .search-results:empty {
+  margin-bottom: 0;
+}
+
+.search-results {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.login-pill {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.search-pill,
+.hash-tag {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+@media (min-width: 780px) {
+  .content-grid.home-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card-add {
+    grid-row: span 2;
+  }
+
+  .card-quiz {
+    grid-column: 2;
+  }
+
+  .card-batch {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-head {
+    gap: 16px;
+  }
+
+  .brand-block h1 {
+    font-size: 38px;
+  }
+
+  .stats-panel {
+    justify-content: space-between;
+  }
+
+  .stats-panel div {
+    padding: 0 8px;
+  }
+}
+
+
+/* v23 首页层级与按钮统一 */
+#nextQuestionBtn {
+  width: 100%;
+  min-height: 58px;
+  margin-top: 14px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--blue);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.card-batch .secondary-btn {
+  width: 100%;
+  min-height: 58px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+@media (min-width: 780px) {
+  .content-grid.home-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .card-add {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .card-batch {
+    grid-column: 2;
+    grid-row: auto;
+  }
+
+  .card-quiz {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .card-wrong {
+    display: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  #nextQuestionBtn,
+  .card-batch .secondary-btn {
+    min-height: 52px;
+    font-size: 20px;
+  }
+}
+
+
+/* v24 首页左右卡片对齐与压缩 */
+.card-add .section-kicker,
+.card-batch .section-kicker {
+  display: none;
+}
+
+.card-add .card-title-row,
+.card-batch .card-title-row {
+  min-height: 76px;
+  align-items: flex-start;
+}
+
+.card-add .form-grid {
+  gap: 12px;
+}
+
+.card-add label {
+  gap: 5px;
+}
+
+.card-add input {
+  min-height: 52px;
+  padding: 10px 14px;
+}
+
+.card-add textarea {
+  min-height: 82px;
+  padding: 10px 14px;
+}
+
+.card-add .primary-btn {
+  min-height: 58px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.card-batch {
+  align-self: start;
+}
+
+.card-batch .card-title-row {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+
+.card-batch .batch-body {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.card-batch textarea {
+  min-height: 164px;
+}
+
+.card-batch .secondary-btn {
+  margin-top: 8px;
+}
+
+@media (min-width: 780px) {
+  .card-add,
+  .card-batch {
+    min-height: 520px;
+  }
+
+  .card-batch .batch-body {
+    display: grid;
+    grid-template-rows: auto auto auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .card-add,
+  .card-batch {
+    min-height: auto;
+  }
+}
+
+
+/* v25 Batch 合并到 Nuova parola，首页两栏对齐 */
+.card-add .section-kicker,
+.card-quiz .section-kicker {
+  display: block;
+}
+
+.card-batch {
+  display: none !important;
+}
+
+.inline-batch-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.batch-toggle-inline {
+  width: 100%;
+  min-height: 48px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.inline-batch-panel .batch-body {
+  margin-top: 14px;
+}
+
+.inline-batch-panel textarea {
+  min-height: 130px;
+}
+
+.inline-batch-panel .secondary-btn {
+  width: 100%;
+}
+
+@media (min-width: 780px) {
+  .content-grid.home-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .card-add {
+    grid-column: 1;
+    grid-row: auto;
+    min-height: 0;
+  }
+
+  .card-quiz {
+    grid-column: 2;
+    grid-row: auto;
+  }
+
+  .card-add,
+  .card-quiz {
+    height: fit-content;
+  }
+}
+
+@media (max-width: 720px) {
+  .card-add,
+  .card-quiz {
+    min-height: auto;
+  }
+}
+
+
+/* v26 批量添加标题化 + 统计移到右下 */
+.batch-title-toggle {
+  width: 100%;
+  min-height: auto;
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--blue);
+  font-size: 22px;
+  font-weight: 900;
+  text-align: left;
+}
+
+.inline-batch-panel {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.home-stats-card {
+  align-self: start;
+}
+
+.home-stats-card .card-title-row {
+  display: none;
+}
+
+.home-stats-card .stats-panel {
+  margin-top: 0;
+}
+
+@media (min-width: 780px) {
+  .home-stats-card {
+    grid-column: 2;
+    grid-row: auto;
+  }
+
+  .home-stats-card .stats-panel {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-stats-card {
+    grid-column: auto;
+  }
+}
+
+
+/* v27 首页网格对齐：减少空白、统计上移去边框 */
+@media (min-width: 780px) {
+  .content-grid.home-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    grid-auto-flow: dense;
+    gap: 18px 22px;
+  }
+
+  .card-add {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-height: 0;
+  }
+
+  .card-quiz {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .home-stats-card {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    align-self: start;
+  }
+
+  .home-stats-card .stats-panel {
+    margin-top: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .home-stats-card .stats-panel div:first-child {
+    padding-left: 0;
+  }
+
+  .card-add,
+  .card-quiz {
+    height: auto;
+  }
+}
+
+.home-stats-card {
+  box-shadow: none;
+}
+
+.home-stats-card .stats-panel {
+  justify-content: flex-start;
+}
+
+.card-add {
+  padding-bottom: 18px;
+}
+
+.inline-batch-panel {
+  margin-top: 14px;
+}
+
+.inline-batch-panel .batch-body {
+  margin-bottom: 0;
+}
+
+.inline-batch-panel textarea {
+  min-height: 118px;
+}
+
+.inline-batch-panel .secondary-btn {
+  min-height: 52px;
+}
+
+#nextQuestionBtn {
+  margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .home-stats-card {
+    border: 0;
+    padding: 0;
+    background: transparent;
+  }
+}
+
+
+/* v28 右侧统计栏与左侧底部对齐 */
+@media (min-width: 780px) {
+  .content-grid.home-grid {
+    align-items: stretch;
+  }
+
+  .card-add {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    height: 100%;
+  }
+
+  .card-quiz {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .home-stats-card {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
+    margin-top: auto;
+  }
+
+  .home-stats-card .stats-panel {
+    width: 100%;
+  }
+}
