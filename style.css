@@ -1406,3 +1406,17 @@ h2 {
     width: 100%;
   }
 }
+
+
+/* v29 词库页搜索置顶 */
+.library-search-card {
+  order: -10;
+}
+
+#libraryView .content-grid {
+  gap: 16px;
+}
+
+.library-search-card .card-title-row {
+  margin-bottom: 12px;
+}

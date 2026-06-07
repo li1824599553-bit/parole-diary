@@ -135,22 +135,7 @@
           </section>
 
           <section class="content-grid">
-            <section class="card">
-              <div class="card-title-row">
-                <div>
-                  <p class="section-kicker">Salvataggio</p>
-                  <h2>Archivio dati</h2>
-                </div>
-              </div>
-              <p id="libraryCloudStatus" class="library-cloud-status">未登录 Cloud，当前使用本地词库。</p>
-              <p id="backupReminder" class="backup-reminder" hidden></p>
-              <p id="backupStatus" class="backup-status">还没有导出过备份</p>
-              <div class="backup-actions">
-                <button id="exportBackupBtn" class="primary-btn" type="button">Esporta salvataggio</button>
-                <button id="importBackupBtn" class="secondary-btn" type="button">Importa salvataggio</button>
-                <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
-              </div>
-            </section>
+
 
 
             <section class="card search-card library-search-card">
@@ -167,7 +152,24 @@
               <div id="searchResults" class="word-list search-results"></div>
             </section>
 
+            
             <section class="card">
+              <div class="card-title-row">
+                <div>
+                  <p class="section-kicker">Salvataggio</p>
+                  <h2>Archivio dati</h2>
+                </div>
+              </div>
+              <p id="libraryCloudStatus" class="library-cloud-status">未登录 Cloud，当前使用本地词库。</p>
+              <p id="backupReminder" class="backup-reminder" hidden></p>
+              <p id="backupStatus" class="backup-status">还没有导出过备份</p>
+              <div class="backup-actions">
+                <button id="exportBackupBtn" class="primary-btn" type="button">Esporta salvataggio</button>
+                <button id="importBackupBtn" class="secondary-btn" type="button">Importa salvataggio</button>
+                <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
+              </div>
+            </section>
+<section class="card">
               <div class="card-title-row with-action">
                 <div>
                   <p class="section-kicker">Lista parole</p>
