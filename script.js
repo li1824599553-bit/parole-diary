@@ -1,6 +1,7 @@
 const STORAGE_KEY = "paroleMieWords";
 const BACKUP_TIME_KEY = "paroleMieLastBackupAt";
 const LOCAL_BEFORE_CLOUD_KEY = "paroleMieWordsBeforeCloud";
+const LAST_CLOUD_SAVE_DATE_KEY = "linaLastCloudSaveDate";
 const SUPABASE_URL = "https://oqibagjbxmgtjvecbrym.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_0iENUyP41l_P0ZqD7JliCQ_uRUh40Ud";
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -2205,6 +2206,7 @@ const wrongList = document.getElementById("wrongList");
 const clearAllBtn = document.getElementById("clearAllBtn");
 const clearWrongBtn = document.getElementById("clearWrongBtn");
 const quizCounter = document.getElementById("quizCounter");
+const saveCloudBtn = document.getElementById("saveCloudBtn");
 const exportBackupBtn = document.getElementById("exportBackupBtn");
 const importBackupBtn = document.getElementById("importBackupBtn");
 const backupFileInput = document.getElementById("backupFileInput");
@@ -2416,6 +2418,7 @@ async function initAuth() {
   if (currentUser) {
     preserveLocalWordsBeforeCloud();
     await loadCloudWords();
+    await autoSaveCloudOnceDaily();
   }
 
   supabaseClient.auth.onAuthStateChange(async (_event, session) => {
@@ -2425,6 +2428,7 @@ async function initAuth() {
     if (currentUser) {
       preserveLocalWordsBeforeCloud();
       await loadCloudWords();
+      await autoSaveCloudOnceDaily();
     } else {
       words = loadWords();
       render();
@@ -3113,7 +3117,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 32,
+    version: 33,
     exportedAt: now,
     words
   };
@@ -3216,6 +3220,44 @@ async function uploadWordsArrayToCloud(wordArray, replaceCloud = false) {
   }
 
   return { uploaded: uniqueRows.length, skipped, error: null };
+}
+
+
+
+async function saveCurrentWordsToCloud(showAlert = false) {
+  if (!currentUser || !supabaseClient) {
+    if (showAlert) alert("请先登录 Cloud，再保存到云端。");
+    updateLibraryCloudStatus("未登录 Cloud，无法保存云端。", "error");
+    return;
+  }
+
+  updateLibraryCloudStatus("正在保存到云端……");
+
+  const localWords = words && words.length ? words : loadLocalWordsForMigration();
+  const result = await uploadWordsArrayToCloud(localWords, false);
+
+  if (result.error) {
+    updateLibraryCloudStatus("云端保存失败：" + result.error, "error");
+    if (showAlert) alert("云端保存失败：" + result.error);
+    return;
+  }
+
+  localStorage.setItem(LAST_CLOUD_SAVE_DATE_KEY, today());
+  await loadCloudWords();
+
+  const message = `已保存云端：新增 ${result.uploaded} 个，跳过重复 ${result.skipped} 个。`;
+  updateLibraryCloudStatus(`已同步云端词库：${words.length} 个单词。`, "success");
+  setMessage(syncMessage, message, "success");
+  if (showAlert) alert(message);
+}
+
+async function autoSaveCloudOnceDaily() {
+  if (!currentUser) return;
+
+  const lastDate = localStorage.getItem(LAST_CLOUD_SAVE_DATE_KEY);
+  if (lastDate === today()) return;
+
+  await saveCurrentWordsToCloud(false);
 }
 
 
@@ -3434,6 +3476,10 @@ if (wordDetailModal) {
   });
 }
 
+
+if (saveCloudBtn) {
+  saveCloudBtn.addEventListener("click", () => saveCurrentWordsToCloud(true));
+}
 
 nextQuestionBtn.addEventListener("click", createQuestion);
 exportBackupBtn.addEventListener("click", exportBackup);

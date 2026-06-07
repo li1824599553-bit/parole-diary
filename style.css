@@ -1420,3 +1420,15 @@ h2 {
 .library-search-card .card-title-row {
   margin-bottom: 12px;
 }
+
+
+/* v33 云端保存按钮 */
+.backup-actions {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 720px) {
+  .backup-actions {
+    grid-template-columns: 1fr;
+  }
+}
