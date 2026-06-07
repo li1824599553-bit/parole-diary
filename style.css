@@ -707,3 +707,44 @@ input.duplicate-input {
 #cloudStatus.offline {
   background: var(--blue);
 }
+
+
+/* v18 登录入口移到主页右上角 */
+.login-pill {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--blue);
+  font-weight: 900;
+  justify-self: end;
+}
+
+.login-pill.cloud {
+  background: var(--blue);
+  color: var(--paper);
+  border-color: var(--blue);
+}
+
+.login-status-dot {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--danger);
+}
+
+.login-pill.cloud .login-status-dot {
+  background: #62d17f;
+}
+
+.auth-modal {
+  width: min(100%, 560px);
+}
+
+.auth-card {
+  display: none !important;
+}

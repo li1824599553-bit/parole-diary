@@ -21,6 +21,10 @@
                 <p class="hero-sub">di Lina</p>
               </div>
               <div class="hero-side">
+                <button id="openAuthBtn" class="login-pill" type="button">
+                  <span id="cloudStatus" class="login-status-dot"></span>
+                  <span id="authButtonText">Accesso</span>
+                </button>
                 <div class="search-pill">⌕ <span>Parole di Lina</span></div>
                 <div class="hash-tag">#vocabolario</div>
               </div>
@@ -41,43 +45,6 @@
               </div>
             </section>
           </section>
-
-          <section class="card auth-card">
-            <div class="card-title-row with-action">
-              <div>
-                <p class="section-kicker">Cloud sync</p>
-                <h2>Accesso</h2>
-              </div>
-              <span id="cloudStatus" class="counter">Locale</span>
-            </div>
-
-            <div id="authLoggedOut" class="auth-box">
-              <p class="cloud-help">登录后，单词会保存到云端。换 iPad / 手机 / 电脑登录同一个账号，就能看到同一份词库。</p>
-              <label>
-                <span>Email</span>
-                <input id="authEmailInput" type="email" placeholder="邮箱" autocomplete="email" />
-              </label>
-              <label>
-                <span>Password</span>
-                <input id="authPasswordInput" type="password" placeholder="密码，至少 6 位" autocomplete="current-password" />
-              </label>
-              <div class="auth-actions">
-                <button id="signInBtn" class="primary-btn" type="button">Accedi</button>
-                <button id="signUpBtn" class="secondary-btn" type="button">Registrati</button>
-              </div>
-              <p id="authMessage" class="cloud-message"></p>
-            </div>
-
-            <div id="authLoggedIn" class="auth-box" hidden>
-              <p class="cloud-help">已登录：<strong id="userEmailText"></strong></p>
-              <div class="auth-actions">
-                <button id="syncLocalBtn" class="secondary-btn" type="button">Carica dati locali</button>
-                <button id="signOutBtn" class="text-btn danger" type="button">Esci</button>
-              </div>
-              <p id="syncMessage" class="cloud-message"></p>
-            </div>
-          </section>
-
           <section class="card search-card">
             <div class="card-title-row">
               <div>
@@ -204,6 +171,45 @@
         <button class="nav-btn" data-target="libraryView"><span>☷</span><em>Biblioteca</em></button>
       </nav>
     </div>
+
+
+      <div id="authModal" class="modal-backdrop" hidden>
+        <section class="edit-modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+          <div class="card-title-row with-action">
+            <div>
+              <p class="section-kicker">Cloud sync</p>
+              <h2 id="authModalTitle">Accesso</h2>
+            </div>
+            <button id="closeAuthBtn" class="text-btn" type="button">Chiudi</button>
+          </div>
+
+          <div id="authLoggedOut" class="auth-box">
+            <p class="cloud-help">登录后，单词会保存到云端。换 iPad / 手机 / 电脑登录同一个账号，就能看到同一份词库。</p>
+            <label>
+              <span>Email</span>
+              <input id="authEmailInput" type="email" placeholder="邮箱" autocomplete="email" />
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="authPasswordInput" type="password" placeholder="密码，至少 6 位" autocomplete="current-password" />
+            </label>
+            <div class="auth-actions">
+              <button id="signInBtn" class="primary-btn" type="button">Accedi</button>
+              <button id="signUpBtn" class="secondary-btn" type="button">Registrati</button>
+            </div>
+            <p id="authMessage" class="cloud-message"></p>
+          </div>
+
+          <div id="authLoggedIn" class="auth-box" hidden>
+            <p class="cloud-help">已登录：<strong id="userEmailText"></strong></p>
+            <div class="auth-actions">
+              <button id="syncLocalBtn" class="secondary-btn" type="button">Carica dati locali</button>
+              <button id="signOutBtn" class="text-btn danger" type="button">Esci</button>
+            </div>
+            <p id="syncMessage" class="cloud-message"></p>
+          </div>
+        </section>
+      </div>
 
       <div id="editModal" class="modal-backdrop" hidden>
         <section class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">

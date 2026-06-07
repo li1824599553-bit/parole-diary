@@ -2210,6 +2210,10 @@ const importBackupBtn = document.getElementById("importBackupBtn");
 const backupFileInput = document.getElementById("backupFileInput");
 const backupStatus = document.getElementById("backupStatus");
 
+const openAuthBtn = document.getElementById("openAuthBtn");
+const closeAuthBtn = document.getElementById("closeAuthBtn");
+const authModal = document.getElementById("authModal");
+const authButtonText = document.getElementById("authButtonText");
 const authEmailInput = document.getElementById("authEmailInput");
 const authPasswordInput = document.getElementById("authPasswordInput");
 const signInBtn = document.getElementById("signInBtn");
@@ -2304,9 +2308,16 @@ function updateAuthUI() {
   const online = !!currentUser;
 
   if (cloudStatus) {
-    cloudStatus.textContent = online ? "Cloud" : "Locale";
     cloudStatus.classList.toggle("online", online);
     cloudStatus.classList.toggle("offline", !online);
+  }
+
+  if (openAuthBtn) {
+    openAuthBtn.classList.toggle("cloud", online);
+  }
+
+  if (authButtonText) {
+    authButtonText.textContent = online ? "Cloud" : "Accesso";
   }
 
   if (authLoggedOut) authLoggedOut.hidden = online;
@@ -2344,6 +2355,19 @@ function loadLocalWordsForMigration() {
   }
 
   return [];
+}
+
+
+
+function openAuthModal() {
+  if (!authModal) return;
+  authModal.hidden = false;
+  if (!currentUser && authEmailInput) authEmailInput.focus();
+}
+
+function closeAuthModal() {
+  if (!authModal) return;
+  authModal.hidden = true;
 }
 
 
@@ -2416,7 +2440,7 @@ async function signIn() {
   }
 
   currentUser = data.user;
-  setMessage(authMessage, "");
+  setMessage(authMessage, "登录成功。", "success");
   updateAuthUI();
   await loadCloudWords();
 }
@@ -2855,7 +2879,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 17,
+    version: 18,
     exportedAt: now,
     words
   };
@@ -3029,6 +3053,16 @@ if (clearSearchBtn) {
 }
 
 
+
+if (openAuthBtn) openAuthBtn.addEventListener("click", openAuthModal);
+if (closeAuthBtn) closeAuthBtn.addEventListener("click", closeAuthModal);
+if (authModal) {
+  authModal.addEventListener("click", (event) => {
+    if (event.target === authModal) closeAuthModal();
+  });
+}
+
+
 if (signInBtn) signInBtn.addEventListener("click", signIn);
 if (signUpBtn) signUpBtn.addEventListener("click", signUp);
 if (signOutBtn) signOutBtn.addEventListener("click", signOut);
@@ -3075,6 +3109,7 @@ function render() {
   quizCounter.textContent = `${answeredCount}/${Math.max(questionPool().length, 0)}`;
 }
 
+if (authModal) authModal.hidden = true;
 initAuth();
 render();
 createQuestion();
