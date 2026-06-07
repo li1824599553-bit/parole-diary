@@ -3117,7 +3117,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 33,
+    version: 34,
     exportedAt: now,
     words
   };

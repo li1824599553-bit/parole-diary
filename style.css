@@ -1432,3 +1432,52 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v34 修复底部导航偶尔消失 */
+.app-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+.view-stack {
+  height: 100%;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bottom-nav {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 100;
+  min-height: 52px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 0 -10px 24px rgba(10, 36, 62, 0.06);
+}
+
+.modal-backdrop {
+  z-index: 200;
+}
+
+@media (max-width: 720px) {
+  .view-stack {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav {
+    left: 16px;
+    right: 16px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+}
+
+/* 键盘弹出时，底栏依然保持可见 */
+@supports (-webkit-touch-callout: none) {
+  .bottom-nav {
+    transform: translateZ(0);
+  }
+}
