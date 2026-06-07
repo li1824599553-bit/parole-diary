@@ -2879,7 +2879,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 18,
+    version: 19,
     exportedAt: now,
     words
   };
@@ -2914,10 +2914,81 @@ function normalizeImportedWords(data) {
     .filter((word) => word.italian && word.chinese);
 }
 
+
+async function uploadWordsArrayToCloud(wordArray, replaceCloud = false) {
+  if (!currentUser || !supabaseClient) {
+    return { uploaded: 0, skipped: 0, error: null };
+  }
+
+  const cleaned = wordArray
+    .filter((word) => word && word.italian && word.chinese)
+    .map((word) => ({
+      italian: String(word.italian || "").trim(),
+      chinese: String(word.chinese || "").trim(),
+      note: String(word.note || "").trim(),
+      wrongCount: Number.isFinite(Number(word.wrongCount)) ? Math.max(0, Number(word.wrongCount)) : 0,
+      createdAt: word.createdAt || today()
+    }));
+
+  if (replaceCloud) {
+    const { error: deleteError } = await supabaseClient
+      .from("words")
+      .delete()
+      .eq("user_id", currentUser.id);
+
+    if (deleteError) {
+      return { uploaded: 0, skipped: 0, error: deleteError.message };
+    }
+  }
+
+  const { data: existingData, error: existingError } = await supabaseClient
+    .from("words")
+    .select("italian")
+    .eq("user_id", currentUser.id);
+
+  if (existingError) {
+    return { uploaded: 0, skipped: 0, error: existingError.message };
+  }
+
+  const existingSet = new Set((existingData || []).map((row) => normalizeWordText(row.italian)));
+  const uniqueRows = [];
+  let skipped = 0;
+
+  cleaned.forEach((word) => {
+    const key = normalizeWordText(word.italian);
+    if (!key || existingSet.has(key)) {
+      skipped += 1;
+      return;
+    }
+
+    existingSet.add(key);
+    uniqueRows.push({
+      user_id: currentUser.id,
+      italian: word.italian,
+      chinese: word.chinese,
+      note: word.note || "",
+      wrong_count: word.wrongCount || 0
+    });
+  });
+
+  if (uniqueRows.length === 0) {
+    return { uploaded: 0, skipped, error: null };
+  }
+
+  const { error } = await supabaseClient.from("words").insert(uniqueRows);
+
+  if (error) {
+    return { uploaded: 0, skipped, error: error.message };
+  }
+
+  return { uploaded: uniqueRows.length, skipped, error: null };
+}
+
+
 function importBackupFile(file) {
   const reader = new FileReader();
 
-  reader.onload = () => {
+  reader.onload = async () => {
     try {
       const parsed = JSON.parse(reader.result);
       const importedWords = normalizeImportedWords(parsed);
@@ -2933,11 +3004,25 @@ function importBackupFile(file) {
 
       words = shouldReplace ? importedWords : [...importedWords, ...words];
       saveWords();
+
+      let cloudNotice = "";
+      if (currentUser) {
+        const result = await uploadWordsArrayToCloud(importedWords, shouldReplace);
+        if (result.error) {
+          cloudNotice = `\n\n但是上传云端失败：${result.error}`;
+        } else {
+          await loadCloudWords();
+          cloudNotice = `\n\n已同步到云端：新增 ${result.uploaded} 个，跳过重复 ${result.skipped} 个。`;
+        }
+      } else {
+        cloudNotice = "\n\n你目前还没有登录 Cloud，所以这次只导入到本地。登录后可以点 Carica dati locali 上传到云端。";
+      }
+
       answeredCount = 0;
       render();
       createQuestion();
       switchView("libraryView");
-      alert("导入成功！");
+      alert("导入成功！" + cloudNotice);
     } catch {
       alert("导入失败：请选择本 App 导出的 .json 备份文件。");
     } finally {
