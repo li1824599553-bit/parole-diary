@@ -2732,13 +2732,23 @@ function parseBatchLines(text) {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
-      let parts = line.split(/\s*=\s*|\s*-\s*|\s*：\s*|\s*:\s*/);
-      if (parts.length < 2) {
-        parts = line.split(/\s{2,}/);
-      }
+      let italian = "";
+      let chinese = "";
 
-      const italian = (parts[0] || "").trim();
-      const chinese = parts.slice(1).join(" / ").trim();
+      // 兼容旧格式：fuggire = 逃跑 / fuggire: 逃跑
+      const explicitParts = line.split(/\s*=\s*|\s*：\s*|\s*:\s*|\s*-\s*|\s*—\s*/);
+      if (explicitParts.length >= 2) {
+        italian = (explicitParts[0] || "").trim();
+        chinese = explicitParts.slice(1).join(" / ").trim();
+      } else {
+        // 新格式：fuggire 逃跑 / 逃走
+        // 第一段拉丁字母/重音字母/空格/撇号识别为意大利语，后面识别为中文翻译
+        const match = line.match(/^([A-Za-zÀ-ÖØ-öø-ÿ'’\s]+?)\s+(.+)$/);
+        if (match) {
+          italian = match[1].trim();
+          chinese = match[2].trim();
+        }
+      }
 
       if (!italian || !chinese) return null;
 
@@ -3065,14 +3075,18 @@ function checkAnswer(selectedIndex) {
 
   if (isCorrect) {
     feedback.textContent = `回答正确！“${answer.italian}” 意为 “${answer.chinese}”。`;
+    render();
+
+    setTimeout(() => {
+      createQuestion();
+    }, 450);
   } else {
     answer.wrongCount = (answer.wrongCount || 0) + 1;
     saveWords();
     updateCloudWord(answer);
     feedback.textContent = `回答错误。正确答案：${answer.italian} = ${answer.chinese}`;
+    render();
   }
-
-  render();
 }
 
 function formatDateTime(isoText) {
@@ -3099,7 +3113,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 29,
+    version: 32,
     exportedAt: now,
     words
   };
@@ -3390,7 +3404,7 @@ if (batchWordForm) {
     const parsedWords = parseBatchLines(batchInput.value);
 
     if (parsedWords.length === 0) {
-      setMessage(batchMessage, "没有识别到可添加的单词。请使用：italiano = 中文", "error");
+      setMessage(batchMessage, "没有识别到可添加的单词。请使用：fuggire 逃跑", "error");
       return;
     }
 
