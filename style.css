@@ -1603,3 +1603,122 @@ select,
     padding-top: 0;
   }
 }
+
+
+/* v38 测试区删除当前单词 */
+.quiz-action-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+#deleteQuizWordBtn {
+  min-height: 58px;
+  padding: 0 18px;
+  border: 1px solid rgba(162,77,77,.35);
+}
+
+@media (max-width: 720px) {
+  .quiz-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  #deleteQuizWordBtn {
+    min-height: 46px;
+  }
+}
+
+
+/* v39 测试按钮比例 + 统计移到词库页 */
+.quiz-action-row {
+  grid-template-columns: minmax(0, 1fr) 150px;
+}
+
+#deleteQuizWordBtn {
+  min-width: 0;
+  padding: 0 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+#nextQuestionBtn {
+  width: 100%;
+}
+
+.library-stats-card {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: -4px 0 4px;
+}
+
+.library-stats-card .stats-panel {
+  margin-top: 0;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  justify-content: flex-start;
+}
+
+.library-stats-card .stats-panel div:first-child {
+  padding-left: 0;
+}
+
+.home-stats-card {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .quiz-action-row {
+    grid-template-columns: 1fr 112px;
+  }
+
+  #deleteQuizWordBtn {
+    font-size: 13px;
+    padding: 0 8px;
+  }
+}
+
+
+/* v40 测试按钮对齐 + 统计放在 Archivio 下面 */
+.quiz-action-row {
+  grid-template-columns: minmax(0, 1fr) 138px;
+  align-items: stretch;
+}
+
+.quiz-action-row button,
+#nextQuestionBtn,
+#deleteQuizWordBtn {
+  height: 58px;
+  min-height: 58px;
+  margin-top: 0;
+  display: inline-grid;
+  place-items: center;
+}
+
+#deleteQuizWordBtn {
+  width: 100%;
+  line-height: 1.1;
+}
+
+.archivio-stats-inline {
+  margin: 0 0 14px;
+}
+
+.archivio-stats-inline .stats-panel {
+  padding: 8px 0;
+}
+
+@media (max-width: 720px) {
+  .quiz-action-row {
+    grid-template-columns: minmax(0, 1fr) 104px;
+  }
+
+  .quiz-action-row button,
+  #nextQuestionBtn,
+  #deleteQuizWordBtn {
+    height: 52px;
+    min-height: 52px;
+  }
+}

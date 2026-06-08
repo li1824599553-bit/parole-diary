@@ -2185,7 +2185,9 @@ const builtInDictionary = {
 
 
 let words = loadWords();
+repairExistingPhraseSplits();
 let currentQuestion = null;
+let lastQuizAnswer = null;
 let quizMode = "zhToIt";
 let quizScope = "all";
 let answeredCount = 0;
@@ -2203,6 +2205,7 @@ const duplicateMessage = document.getElementById("duplicateMessage");
 const autoTranslateMessage = document.getElementById("autoTranslateMessage");
 const quizBox = document.getElementById("quizBox");
 const nextQuestionBtn = document.getElementById("nextQuestionBtn");
+const deleteQuizWordBtn = document.getElementById("deleteQuizWordBtn");
 const wordList = document.getElementById("wordList");
 const wrongList = document.getElementById("wrongList");
 const clearAllBtn = document.getElementById("clearAllBtn");
@@ -2275,6 +2278,77 @@ function loadWords() {
 function saveWords() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
 }
+
+
+function repairExistingPhraseSplits() {
+  let repairedCount = 0;
+
+  words = words.map((word) => {
+    const chineseText = String(word.chinese || "").trim();
+    const cjkIndex = chineseText.search(/[\u3400-\u9FFF]/);
+
+    // 旧错误形式通常是：
+    // italiano: "tema"
+    // chinese: "sociale 社会议题"
+    // 也就是中文翻译字段前面混入了意大利语词。
+    if (cjkIndex <= 0) return word;
+
+    const misplacedItalian = chineseText.slice(0, cjkIndex).trim();
+    const realChinese = chineseText.slice(cjkIndex).trim();
+
+    // 只修复明显是拉丁字母/意大利语的前缀，避免误伤正常中文翻译。
+    const looksItalian = /[A-Za-zÀ-ÖØ-öø-ÿ]/.test(misplacedItalian);
+    const hasChinese = /[\u3400-\u9FFF]/.test(realChinese);
+    if (!looksItalian || !hasChinese) return word;
+
+    const fixedItalian = `${String(word.italian || "").trim()} ${misplacedItalian}`
+      .replace(/\s+/g, " ")
+      .replace(/[=：:－—–-]\s*$/u, "")
+      .trim();
+
+    if (!fixedItalian || !realChinese) return word;
+
+    repairedCount += 1;
+    return {
+      ...word,
+      italian: fixedItalian,
+      chinese: realChinese
+    };
+  });
+
+  // 修复后去重：如果已有同名正确短语，保留较新的/前面的一个。
+  const seen = new Set();
+  words = words.filter((word) => {
+    const key = normalizeWordText(word.italian);
+    if (!key) return false;
+    if (seen.has(key)) {
+      repairedCount += 1;
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+
+  if (repairedCount > 0) {
+    saveWords();
+  }
+
+  return repairedCount;
+}
+
+async function repairExistingPhraseSplitsAndSync() {
+  const count = repairExistingPhraseSplits();
+  if (count <= 0) return 0;
+
+  if (currentUser) {
+    for (const word of words) {
+      if (word.id) await updateCloudWord(word);
+    }
+  }
+
+  return count;
+}
+
 
 function switchView(targetId) {
   views.forEach((view) => view.classList.toggle("active", view.id === targetId));
@@ -2511,9 +2585,12 @@ async function loadCloudWords() {
   }
 
   words = (data || []).map(mapCloudWord);
+  const repairedCount = await repairExistingPhraseSplitsAndSync();
   saveWords();
-  setMessage(syncMessage, `已同步云端词库：${words.length} 个单词。`, "success");
-  updateLibraryCloudStatus(`已同步云端词库：${words.length} 个单词。`, "success");
+
+  const repairText = repairedCount > 0 ? ` 已自动修正 ${repairedCount} 个旧短语。` : "";
+  setMessage(syncMessage, `已同步云端词库：${words.length} 个单词。${repairText}`, "success");
+  updateLibraryCloudStatus(`已同步云端词库：${words.length} 个单词。${repairText}`, "success");
   render();
   createQuestion();
 }
@@ -2541,6 +2618,7 @@ async function updateCloudWord(word) {
   const { error } = await supabaseClient
     .from("words")
     .update({
+      italian: word.italian,
       chinese: word.chinese,
       note: word.note || "",
       wrong_count: word.wrongCount || 0
@@ -2738,30 +2816,19 @@ function parseBatchLines(text) {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
-      let italian = "";
-      let chinese = "";
+      const cjkIndex = line.search(/[\u3400-\u9FFF]/);
 
-      // 优先兼容旧格式：italiano = 中文 / italiano: 中文
-      const explicitParts = line.split(/\s*=\s*|\s*：\s*|\s*:\s*|\s*-\s*|\s*—\s*/);
-      if (explicitParts.length >= 2) {
-        italian = (explicitParts[0] || "").trim();
-        chinese = explicitParts.slice(1).join(" / ").trim();
-      } else {
-        // 新格式：意大利语短语 + 中文翻译
-        // 以第一个中文字符作为分界，这样可以准确识别 linea editoriale 编辑路线
-        const cjkIndex = line.search(/[\u3400-\u9FFF]/);
-        if (cjkIndex > 0) {
-          italian = line.slice(0, cjkIndex).trim();
-          chinese = line.slice(cjkIndex).trim();
-        } else {
-          // 兜底：第一个词作为意大利语，后面作为翻译
-          const match = line.match(/^(.+?)\s+(.+)$/);
-          if (match) {
-            italian = match[1].trim();
-            chinese = match[2].trim();
-          }
-        }
-      }
+      // 只用第一个中文字符作为分界线：
+      // 中文前 = 完整意大利语单词/短语
+      // 中文后 = 中文翻译
+      // 不再用空格、横线切分，避免 tema sociale 被拆成 tema / sociale 社会议题
+      if (cjkIndex <= 0) return null;
+
+      let italian = line.slice(0, cjkIndex).trim();
+      let chinese = line.slice(cjkIndex).trim();
+
+      // 兼容旧写法里的分隔符，但只删除“意大利语末尾”的符号
+      italian = italian.replace(/[=：:－—–-]\s*$/u, "").trim();
 
       if (!italian || !chinese) return null;
 
@@ -2777,11 +2844,36 @@ function parseBatchLines(text) {
     .filter(Boolean);
 }
 
+function findOldSplitPhraseMistake(newWord) {
+  const phraseParts = String(newWord.italian || "").trim().split(/\s+/);
+  if (phraseParts.length < 2) return -1;
+
+  const firstPart = normalizeWordText(phraseParts[0]);
+  const restPart = normalizeWordText(phraseParts.slice(1).join(" "));
+
+  return words.findIndex((oldWord) => {
+    const oldItalian = normalizeWordText(oldWord.italian);
+    const oldChinese = normalizeWordText(oldWord.chinese);
+    return oldItalian === firstPart && oldChinese.startsWith(restPart);
+  });
+}
+
 async function saveWordsToCloudAndLocal(newWords) {
   const saved = [];
   for (const word of newWords) {
+    // 修复之前的错误导入：
+    // 例如旧数据：tema = sociale 社会议题
+    // 新数据：tema sociale = 社会议题
+    // 添加新短语时，自动删除旧的错误拆分词。
+    const oldSplitIndex = findOldSplitPhraseMistake(word);
+    if (oldSplitIndex >= 0) {
+      await deleteCloudWord(words[oldSplitIndex]);
+      words.splice(oldSplitIndex, 1);
+    }
+
     const duplicate = findDuplicateWord(word.italian);
     if (duplicate) continue;
+
     const savedWord = await insertCloudWord(word);
     words.unshift(savedWord);
     saved.push(savedWord);
@@ -3057,6 +3149,8 @@ function createQuestion() {
   quizCounter.textContent = `${answeredCount}/${Math.max(pool.length, 0)}`;
 
   if (pool.length < 4) {
+    currentQuestion = null;
+    lastQuizAnswer = null;
     quizBox.className = "quiz-box empty";
     quizBox.innerHTML = quizScope === "wrong"
       ? `<p>错题至少需要 4 个，才能生成选择题。你可以先用全部词库测试。</p>`
@@ -3071,6 +3165,7 @@ function createQuestion() {
   const options = shuffle([answer, ...wrongOptions]);
 
   currentQuestion = { answer, options, answered: false };
+  lastQuizAnswer = answer;
 
   const questionText = quizMode === "zhToIt"
     ? `“${answer.chinese}” 对应哪个意大利语？`
@@ -3147,7 +3242,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 36,
+    version: 43,
     exportedAt: now,
     words
   };
@@ -3263,6 +3358,7 @@ async function saveCurrentWordsToCloud(showAlert = false) {
 
   updateLibraryCloudStatus("正在保存到云端……");
 
+  await repairExistingPhraseSplitsAndSync();
   const localWords = words && words.length ? words : loadLocalWordsForMigration();
   const result = await uploadWordsArrayToCloud(localWords, false);
 
@@ -3521,7 +3617,47 @@ if (saveCloudBtn) {
   saveCloudBtn.addEventListener("click", () => saveCurrentWordsToCloud(true));
 }
 
+
+async function deleteCurrentQuizWord() {
+  const answer = currentQuestion && currentQuestion.answer ? currentQuestion.answer : lastQuizAnswer;
+
+  if (!answer) {
+    alert("当前没有正在测试的单词。");
+    return;
+  }
+
+  const key = normalizeWordText(answer.italian);
+  const index = words.findIndex((word) => normalizeWordText(word.italian) === key);
+
+  if (index < 0) {
+    alert("这个单词可能已经被删除。");
+    currentQuestion = null;
+    lastQuizAnswer = null;
+    createQuestion();
+    return;
+  }
+
+  const word = words[index];
+
+  if (!confirm(`确定要删除当前测试单词吗？\n${word.italian} = ${word.chinese}`)) return;
+
+  await deleteCloudWord(word);
+  words.splice(index, 1);
+  saveWords();
+
+  currentQuestion = null;
+  lastQuizAnswer = null;
+  render();
+  createQuestion();
+}
+
+
+
 nextQuestionBtn.addEventListener("click", createQuestion);
+
+if (deleteQuizWordBtn) {
+  deleteQuizWordBtn.addEventListener("click", deleteCurrentQuizWord);
+}
 exportBackupBtn.addEventListener("click", exportBackup);
 
 importBackupBtn.addEventListener("click", () => {
