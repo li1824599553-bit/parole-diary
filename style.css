@@ -1722,3 +1722,12 @@ select,
     min-height: 52px;
   }
 }
+
+
+/* v44 确保测试删除按钮可点击 */
+#deleteQuizWordBtn {
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  z-index: 5;
+}

@@ -3242,7 +3242,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 43,
+    version: 45,
     exportedAt: now,
     words
   };
@@ -3619,15 +3619,35 @@ if (saveCloudBtn) {
 
 
 async function deleteCurrentQuizWord() {
-  const answer = currentQuestion && currentQuestion.answer ? currentQuestion.answer : lastQuizAnswer;
+  let answer = currentQuestion && currentQuestion.answer ? currentQuestion.answer : lastQuizAnswer;
+
+  if (!answer && quizBox) {
+    const questionText = quizBox.querySelector(".quiz-question")?.textContent || "";
+    const quoted = questionText.match(/[“"](.+?)[”"]/);
+    const q = quoted ? quoted[1].trim() : "";
+
+    if (q) {
+      if (quizMode === "zhToIt") {
+        answer = words.find((word) => String(word.chinese || "").trim() === q);
+      } else {
+        answer = words.find((word) => normalizeWordText(word.italian) === normalizeWordText(q));
+      }
+    }
+  }
 
   if (!answer) {
-    alert("当前没有正在测试的单词。");
+    alert("当前没有找到正在测试的单词，请先点 Prossima domanda 生成题目。");
     return;
   }
 
-  const key = normalizeWordText(answer.italian);
-  const index = words.findIndex((word) => normalizeWordText(word.italian) === key);
+  const answerItalian = normalizeWordText(answer.italian);
+  const answerChinese = String(answer.chinese || "").trim();
+
+  let index = words.findIndex((word) => normalizeWordText(word.italian) === answerItalian);
+
+  if (index < 0 && answerChinese) {
+    index = words.findIndex((word) => String(word.chinese || "").trim() === answerChinese);
+  }
 
   if (index < 0) {
     alert("这个单词可能已经被删除。");
@@ -3639,8 +3659,6 @@ async function deleteCurrentQuizWord() {
 
   const word = words[index];
 
-  if (!confirm(`确定要删除当前测试单词吗？\n${word.italian} = ${word.chinese}`)) return;
-
   await deleteCloudWord(word);
   words.splice(index, 1);
   saveWords();
@@ -3649,15 +3667,26 @@ async function deleteCurrentQuizWord() {
   lastQuizAnswer = null;
   render();
   createQuestion();
+
+  setTimeout(() => {
+    if (deleteQuizWordBtn) deleteQuizWordBtn.blur();
+  }, 0);
 }
 
+window.deleteCurrentQuizWord = deleteCurrentQuizWord;
 
 
 nextQuestionBtn.addEventListener("click", createQuestion);
 
-if (deleteQuizWordBtn) {
-  deleteQuizWordBtn.addEventListener("click", deleteCurrentQuizWord);
-}
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (target && target.id === "deleteQuizWordBtn") {
+    event.preventDefault();
+    deleteCurrentQuizWord();
+  }
+});
+
 exportBackupBtn.addEventListener("click", exportBackup);
 
 importBackupBtn.addEventListener("click", () => {
