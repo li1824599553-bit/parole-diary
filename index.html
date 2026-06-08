@@ -67,7 +67,7 @@
                 <form id="batchWordForm" class="form-grid batch-body" hidden>
                   <label>
                     <span>Formato</span>
-                    <textarea id="batchInput" placeholder="使用方法：&#10;fuggire 逃跑 / 逃走&#10;litigare 吵架&#10;nostalgia 怀念 / 乡愁"></textarea>
+                    <textarea id="batchInput" placeholder="使用方法：&#10;linea editoriale 编辑路线&#10;tema sociale 社会议题&#10;approccio progressista 进步主义方式"></textarea>
                   </label>
                   <button type="submit" class="secondary-btn">Salva parole</button>
                   <p id="batchMessage" class="cloud-message"></p>
@@ -97,7 +97,10 @@
                 <p>至少添加 4 个生词后，就可以开始选择题测试。</p>
               </div>
 
-              <button id="nextQuestionBtn" class="secondary-btn">Prossima domanda</button>
+              <div class="quiz-action-row">
+                <button id="nextQuestionBtn" class="secondary-btn">Prossima domanda</button>
+                <button id="deleteQuizWordBtn" class="text-btn danger" type="button">删除当前单词</button>
+              </div>
             </section>
 
             <section class="card home-stats-card">
@@ -107,24 +110,7 @@
                   <h2>Riepilogo</h2>
                 </div>
               </div>
-
-
-            <section class="stats-panel">
-              <div>
-                <span id="totalWords">0</span>
-                <p>Totale</p>
-              </div>
-              <div>
-                <span id="todayWords">0</span>
-                <p>Oggi</p>
-              </div>
-              <div>
-                <span id="wrongWords">0</span>
-                <p>Errori</p>
-              </div>
-            </section>
-          
-            </section>
+</section>
               
 </section>
         </section>
@@ -176,8 +162,7 @@
                 <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
               </div>
             </section>
-
-            <section class="card wrong-card-library">
+<section class="card wrong-card-library">
               <div class="card-title-row with-action">
                 <div>
                   <p class="section-kicker">Ripasso</p>
@@ -196,6 +181,30 @@
                 <button id="clearAllBtn" class="text-btn danger">Svuota</button>
               </div>
 
+
+            <section class="library-stats-card archivio-stats-inline">
+
+
+
+            <section class="stats-panel">
+              <div>
+                <span id="totalWords">0</span>
+                <p>Totale</p>
+              </div>
+              <div>
+                <span id="todayWords">0</span>
+                <p>Oggi</p>
+              </div>
+              <div>
+                <span id="wrongWords">0</span>
+                <p>Errori</p>
+              </div>
+            </section>
+          
+            
+            </section>
+
+            
               <div class="library-filters">
                 <button class="date-filter-btn active" data-filter="all" type="button">Tutte</button>
                 <button class="date-filter-btn" data-filter="today" type="button">Oggi</button>
