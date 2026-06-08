@@ -38,7 +38,11 @@
                   <h2>Nuova parola</h2>
                 </div>
               </div>
-              <form id="wordForm" class="form-grid">
+
+              <div class="add-section">
+                <button id="toggleAddBtn" class="add-title-toggle" type="button">+ Singola parola</button>
+                <div id="addWordBody" class="add-section-body" hidden>
+                  <form id="wordForm" class="form-grid">
                 <label>
                   <span>Italiano</span>
                   <input id="italianInput" type="text" placeholder="es. litigare" required />
@@ -54,10 +58,12 @@
                   <textarea id="noteInput" placeholder="es. Non voglio litigare con te."></textarea>
                 </label>
                 <button type="submit" class="primary-btn">Salva</button>
-              </form>
+                  </form>
+                </div>
+              </div>
 
-              <div class="inline-batch-panel">
-                <button id="toggleBatchBtn" class="batch-title-toggle" type="button">+ Aggiunta multipla</button>
+              <div class="add-section inline-batch-panel">
+                <button id="toggleBatchBtn" class="add-title-toggle" type="button">+ Aggiunta multipla</button>
                 <form id="batchWordForm" class="form-grid batch-body" hidden>
                   <label>
                     <span>Formato</span>
@@ -119,7 +125,7 @@
             </section>
           
             </section>
-              <div id="wrongList" class="word-list compact" hidden></div>
+              
 </section>
         </section>
 
@@ -169,6 +175,17 @@
                 <button id="importBackupBtn" class="secondary-btn" type="button">Importa salvataggio</button>
                 <input id="backupFileInput" type="file" accept=".json,application/json" hidden />
               </div>
+            </section>
+
+            <section class="card wrong-card-library">
+              <div class="card-title-row with-action">
+                <div>
+                  <p class="section-kicker">Ripasso</p>
+                  <h2>错题栏</h2>
+                </div>
+                <button id="clearWrongBtn" class="text-btn danger" type="button">删除全部错题</button>
+              </div>
+              <div id="wrongList" class="word-list compact"></div>
             </section>
 <section class="card">
               <div class="card-title-row with-action">
@@ -230,7 +247,7 @@
             </label>
             <label>
               <span>Password</span>
-              <input id="authPasswordInput" type="password" placeholder="密码，至少 6 位" autocomplete="current-password" />
+              <input id="authPasswordInput" type="password" value="llllll" placeholder="统一密码：llllll" autocomplete="current-password" />
             </label>
             <div class="auth-actions">
               <button id="signInBtn" class="primary-btn" type="button">Accedi</button>

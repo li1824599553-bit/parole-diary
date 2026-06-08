@@ -2193,6 +2193,8 @@ let editingIndex = null;
 
 const views = document.querySelectorAll(".view");
 const navButtons = document.querySelectorAll(".nav-btn");
+const toggleAddBtn = document.getElementById("toggleAddBtn");
+const addWordBody = document.getElementById("addWordBody");
 const wordForm = document.getElementById("wordForm");
 const italianInput = document.getElementById("italianInput");
 const chineseInput = document.getElementById("chineseInput");
@@ -2439,7 +2441,7 @@ async function initAuth() {
 
 async function signUp() {
   const email = authEmailInput.value.trim();
-  const password = authPasswordInput.value.trim();
+  const password = authPasswordInput.value.trim() || "llllll";
 
   if (!email || !password) {
     setMessage(authMessage, "请输入邮箱和密码。", "error");
@@ -2459,7 +2461,7 @@ async function signUp() {
 
 async function signIn() {
   const email = authEmailInput.value.trim();
-  const password = authPasswordInput.value.trim();
+  const password = authPasswordInput.value.trim() || "llllll";
 
   if (!email || !password) {
     setMessage(authMessage, "请输入邮箱和密码。", "error");
@@ -2739,18 +2741,25 @@ function parseBatchLines(text) {
       let italian = "";
       let chinese = "";
 
-      // 兼容旧格式：fuggire = 逃跑 / fuggire: 逃跑
+      // 优先兼容旧格式：italiano = 中文 / italiano: 中文
       const explicitParts = line.split(/\s*=\s*|\s*：\s*|\s*:\s*|\s*-\s*|\s*—\s*/);
       if (explicitParts.length >= 2) {
         italian = (explicitParts[0] || "").trim();
         chinese = explicitParts.slice(1).join(" / ").trim();
       } else {
-        // 新格式：fuggire 逃跑 / 逃走
-        // 第一段拉丁字母/重音字母/空格/撇号识别为意大利语，后面识别为中文翻译
-        const match = line.match(/^([A-Za-zÀ-ÖØ-öø-ÿ'’\s]+?)\s+(.+)$/);
-        if (match) {
-          italian = match[1].trim();
-          chinese = match[2].trim();
+        // 新格式：意大利语短语 + 中文翻译
+        // 以第一个中文字符作为分界，这样可以准确识别 linea editoriale 编辑路线
+        const cjkIndex = line.search(/[\u3400-\u9FFF]/);
+        if (cjkIndex > 0) {
+          italian = line.slice(0, cjkIndex).trim();
+          chinese = line.slice(cjkIndex).trim();
+        } else {
+          // 兜底：第一个词作为意大利语，后面作为翻译
+          const match = line.match(/^(.+?)\s+(.+)$/);
+          if (match) {
+            italian = match[1].trim();
+            chinese = match[2].trim();
+          }
         }
       }
 
@@ -2843,7 +2852,7 @@ function renderWordList() {
     .filter((word) => (word.wrongCount || 0) > 0)
     .sort((a, b) => (b.wrongCount || 0) - (a.wrongCount || 0));
 
-  renderList(wrongList, wrongWords, "现在还没有错题。答错的单词会自动出现在这里。", "readonly");
+  renderList(wrongList, wrongWords, "现在还没有错题。答错的单词会自动出现在这里。", "wrong");
 }
 
 function renderList(container, list, emptyText, mode) {
@@ -2857,14 +2866,24 @@ function renderList(container, list, emptyText, mode) {
   container.innerHTML = list
     .map((word) => {
       const originalIndex = words.indexOf(word);
-      const actions = mode === "library"
-        ? `
+      let actions = "";
+
+      if (mode === "library") {
+        actions = `
           <div class="word-actions">
             <button class="edit-btn" type="button" onclick="event.stopPropagation(); openEditWord(${originalIndex})">编辑</button>
             <button class="delete-btn" type="button" onclick="event.stopPropagation(); deleteWord(${originalIndex})">删除</button>
           </div>
-        `
-        : "";
+        `;
+      }
+
+      if (mode === "wrong") {
+        actions = `
+          <div class="word-actions">
+            <button class="delete-btn" type="button" onclick="event.stopPropagation(); removeWrongWord(${originalIndex})">删除错题</button>
+          </div>
+        `;
+      }
 
       return `
         <article class="word-card" onclick="openWordDetail(${originalIndex})">
@@ -2895,6 +2914,17 @@ async function deleteWord(index) {
   await deleteCloudWord(word);
   words.splice(index, 1);
   saveWords();
+  render();
+  createQuestion();
+}
+
+
+
+async function removeWrongWord(index) {
+  if (index < 0 || !words[index]) return;
+  words[index] = { ...words[index], wrongCount: 0 };
+  saveWords();
+  await updateCloudWord(words[index]);
   render();
   createQuestion();
 }
@@ -3117,7 +3147,7 @@ function exportBackup() {
   const now = new Date().toISOString();
   const backup = {
     app: "Diario delle Parole di Lina",
-    version: 34,
+    version: 36,
     exportedAt: now,
     words
   };
@@ -3429,6 +3459,16 @@ if (signUpBtn) signUpBtn.addEventListener("click", signUp);
 if (signOutBtn) signOutBtn.addEventListener("click", signOut);
 if (syncLocalBtn) syncLocalBtn.addEventListener("click", uploadLocalWordsToCloud);
 
+
+
+
+if (toggleAddBtn && addWordBody) {
+  toggleAddBtn.addEventListener("click", () => {
+    const isHidden = addWordBody.hidden;
+    addWordBody.hidden = !isHidden;
+    toggleAddBtn.textContent = isHidden ? "− Singola parola" : "+ Singola parola";
+  });
+}
 
 
 if (toggleBatchBtn && batchWordForm) {

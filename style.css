@@ -1481,3 +1481,125 @@ h2 {
     transform: translateZ(0);
   }
 }
+
+
+/* v35 登录统一密码、短语识别、错题栏、Nuova parola 收起 */
+.card-add .card-title-row {
+  align-items: center;
+}
+
+#addWordBody {
+  margin-top: 14px;
+}
+
+.wrong-card-library {
+  order: 1;
+}
+
+.wrong-card-library .word-list {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.wrong-card-library .delete-btn {
+  white-space: nowrap;
+}
+
+#authPasswordInput {
+  letter-spacing: 0.08em;
+}
+
+
+/* v36 去页面框 + 添加方式拆分 */
+.card,
+.hero-panel,
+.small-hero,
+.edit-modal {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.card {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.hero-panel {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.card-title-row {
+  border-bottom: 1px solid var(--line);
+}
+
+.word-card,
+.quiz-box,
+input,
+textarea,
+select,
+.bottom-nav,
+.modal-backdrop .edit-modal {
+  border: 1px solid var(--line);
+}
+
+.modal-backdrop .edit-modal {
+  background: var(--paper);
+}
+
+.add-section {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0 14px;
+}
+
+.add-section:last-child {
+  border-bottom: 0;
+}
+
+.add-title-toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: 22px;
+  font-weight: 900;
+  text-align: left;
+  padding: 10px 0;
+}
+
+.add-section-body {
+  margin-top: 12px;
+}
+
+.inline-batch-panel {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 0;
+}
+
+.batch-title-toggle {
+  display: none;
+}
+
+.home-stats-card {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.wrong-card-library,
+.library-search-card {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#libraryView .card:not(:has(.word-list)) {
+  border: 0;
+}
+
+@media (min-width: 780px) {
+  .card-add,
+  .card-quiz {
+    padding-top: 0;
+  }
+}
